@@ -1,0 +1,139 @@
+﻿@page "/reservations"
+@using MauiApp1.Data;
+
+
+<h2>Reservation Finder</h2>
+
+<div class="row">
+    <div class="column">
+        <p>Code:</p>
+        <label for="Airports"></label>
+        <input type="text" class="input" placeholder="Reservation Code" @onchange="ReservationCode">
+
+    </div>
+
+    <div class="column">
+        <p>Airline</p>
+        <label for="Airports"></label>
+        <select name="flightsCode" @onchange="Airline">
+            <option value="ANY">Any</option>
+            @foreach (var a in airportC)
+            {
+                <option value="@a.Code - @a.Name">@a.Code - @a.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="column">
+        <p>Name</p>
+        <label for="name"></label>
+        <input type="text" class="input" placeholder="Name" @onchange="Name" />
+    </div>
+
+    <div class="column">
+        <p>    </p><br />
+        <label for="reservationFinders"></label>
+        <button @onclick="ReservationFinder">Find Reservations</button>
+    </div>
+</div>
+
+<h2>Reservations</h2>
+<div class="row2">
+    <label for="Reservation"></label>
+    <select name="Reservation">
+        <option value="ANY">Select a flight from this list</option>
+    </select>
+</div>
+
+
+<h2>Reserve</h2>
+<div class="row3">
+    <label> Reservation code:</label>
+    <br>
+    <input placeholder="Reservation Code" value="@iReserveCode" readonly />
+    <br>
+    <label> Flight code:</label>
+    <br>
+    <input placeholder="Flight Code" value="@sFlightCode" readonly />
+    <br>
+    <label> Airline:</label>
+    <br>
+    <input placeholder="Airline" value="@sAirline" readonly />
+    <br>
+    <label> Cost:</label>
+    <br>
+    <input placeholder="0" value="@sCost" readonly />
+    <br>
+    <label> Name:</label>
+    <br>
+    <input placeholder="Name" value="@iName" />
+    <br>
+    <label> Citizenship:</label>
+    <br>
+    <input placeholder="Citizenship" value="@iCitizen" />
+    <br>
+    <label> Status:</label>
+    <br>
+    <input placeholder="Inactive" value="@iStatus" />
+    <br>
+</div>
+
+<div class="row4">
+    <br />
+    <label for="Save"></label>
+    <button onclick="flightReserve()">Save</button>
+</div>
+
+
+@code {
+    AirportManager am = new AirportManager();
+    List<Airport> airportC = AirportManager.GetAirports();
+
+    FlightManager fm = new FlightManager();
+    List<Flight> flights = FlightManager.GetFlights();
+    List<Flight> fs = new List<Flight>();
+
+    string iReserveCode;
+    string sFlightCode;
+    string sAirline;
+    decimal sCost;
+    string iName;
+    string iCitizen;
+    bool iStatus;
+    string getReservation;
+
+
+    public void ReservationCode(ChangeEventArgs c)
+    {
+        iReserveCode = c.Value.ToString();
+    }
+
+    public void Airline(ChangeEventArgs c)
+    {
+        sAirline = c.Value.ToString();
+    }
+
+    public void Name(ChangeEventArgs c)
+    {
+        iName = c.Value.ToString();
+    }
+
+    public void GetReservation(ChangeEventArgs c)
+    {
+        getReservation = c.Value.ToString();
+        string[] flight = getReservation.Split(',');
+        iReserveCode = flight[0].Trim();
+        sFlightCode = flight[1].Trim();
+        sAirline = flight[2].Trim();
+        sCost = decimal.Parse(flight[3].Trim());
+        iName = flight[4].Trim();
+        iCitizen = flight[5].Trim();
+        iStatus = Convert.ToBoolean(flight[6].Trim());
+    }
+
+    public void ReservationFinder()
+    {
+
+    }
+
+}

@@ -1,0 +1,216 @@
+﻿@page "/flights"
+@using MauiApp1.Data;
+
+<h2>Flight Finder</h2>
+<div class="row">
+    <div class="column">
+        <p>From:</p>
+        <label for="From"></label>
+        <select name="FlightFrom" @onchange="AirportFrom">
+            <option value="Any">Any</option>
+            @foreach (var a in airports)
+            {
+                <option value="@a.Code">@a.Code - @a.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="column">
+        <p>To:</p>
+        <label for="To"></label>
+        <select name="flightTo" @onchange="AirportTo">
+            <option value="Any">Any</option>
+            @foreach (var a in airports)
+            {
+                <option value="@a.Code">@a.Code - @a.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="column">
+        <p>Day:</p>
+        <label for="Day"></label>
+        <select name="flightDate" @onchange="AirportDate">
+            <option value="Any">Any</option>
+            <option value="Sunday">Sunday</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+        </select>
+    </div>
+
+    <div class="column">
+        <p> </p><br />
+        <label for="Find Finders"></label>
+        <button @onclick="FlightFinders">Find Flights</button>
+    </div>
+</div>
+
+<h2>Flight</h2>
+<div class="row2">
+    <label for="Flights"></label>
+    <select name="flights" @onchange="SelectedCode">
+        <option value="Any">Select a flight</option>
+        @if (airlineFrom == "Any" && airlineTo == "Any" && airlineDay == "Any")
+        {
+            foreach (var f in flights)
+            {
+                <option value="@f.Code,@f.Name,@f.From,@f.To,@f.Day,@f.Time,@f.Seat,@f.Cost">@f.Code,@f.Name,@f.From,@f.To,@f.Day,@f.Time,@f.Cost</option>
+            }
+        }
+        else
+        {
+            foreach (var x in flightsB)
+            {
+                <option value="@x.Code,@x.Name,@x.From,@x.To,@x.Day,@x.Time,@x.Seat,@x.Cost">@x.Code,@x.Name,@x.From,@x.To,@x.Day,@x.Time,@x.Cost</option>
+            }
+        }
+    </select>
+</div>
+
+<h2><br />Reserve</h2>
+<div class="column3">
+    <label> Flight code:</label>
+    <br>
+    <input type="text" placeholder="Flight" value="@airlineCode" readonly />
+</div>
+
+<div class="column3">
+    <label> Airline:</label>
+    <br>
+    <input type="text" placeholder="Airline" value="@airlineName" readonly />
+</div>
+
+<div class="column3">
+    <label> Day:</label>
+    <br>
+    <input type="text" placeholder="Day" value="@airlineDays" readonly />
+</div>
+
+<div class="column3">
+    <label> Time:</label>
+    <br>
+    <input type="text" placeholder="Time" value="@airlineTime" readonly />
+</div>
+
+<div class="column3">
+    <label>Cost:</label>
+    <br>
+    <input type="text" placeholder="Cost" value="@airlineCost" readonly />
+</div>
+
+<div class="column3">
+    <label> Name:</label>
+    <br>
+    <input type="text" placeholder="Name" @bind="pName" />
+</div>
+
+<div class="column3">
+    <label> Citizenship:</label>
+    <br>
+    <input type="text" placeholder="Citizenship" @bind="pCitizenship" />
+</div>
+
+<div class="row4">
+    <div class="column4">
+        <label for="Reserve"></label>
+        <button @onclick="GCode">Reserve</button>
+    </div>
+</div>
+
+<div class="row4">
+    <div class="column4">
+        <label>Reserve Code: @reservationCode </label>
+    </div>
+</div>
+
+
+
+@code {
+
+    AirportManager airportManager = new AirportManager();
+    List<Airport> airports = AirportManager.GetAirports();
+
+    FlightManager flightManager = new FlightManager();
+    List<Flight> flights = FlightManager.GetFlights();
+    List<Flight> flightsB = new List<Flight>();
+
+    ReservationManager reservationManager = new ReservationManager();
+    List<Reservation> reservations = new List<Reservation>();
+
+
+    string airlineFrom = "Any";
+    string airlineTo = "Any";
+    string airlineDay = "Any";
+    string selectedCode;
+    string airlineCode;
+    string airlineName;
+    string airlineAcro1;
+    string airlineAcro2;
+    string airlineDays;
+    string airlineTime;
+    int airlineSeat;
+    decimal airlineCost;
+    private string pName;
+    private string pCitizenship;
+    private string pStatus = "Active";
+    string reservationCode;
+
+
+    private void AirportFrom(ChangeEventArgs c)
+    {
+        airlineFrom = c.Value.ToString();
+    }
+
+    private void AirportTo(ChangeEventArgs c)
+    {
+        airlineTo = c.Value.ToString();
+    }
+
+    private void AirportDate(ChangeEventArgs c)
+    {
+        airlineDay = c.Value.ToString();
+    }
+
+    private void SelectedCode(ChangeEventArgs c)
+    {
+        selectedCode = c.Value.ToString();
+        string[] flight = selectedCode.Split(',');
+        airlineCode = flight[0].Trim();
+        airlineName = flight[1].Trim();
+        airlineAcro1 = flight[2].Trim();
+        airlineAcro2 = flight[3].Trim();
+        airlineDays = flight[4].Trim();
+        airlineTime = flight[5].Trim();
+        airlineSeat = Convert.ToInt32(flight[6]);
+        airlineCost = Convert.ToDecimal(flight[7]);
+    }
+
+    private void FlightFinders()
+    {
+        flightsB.Clear();
+        foreach (var y in flights)
+        {
+            if (y.From == airlineFrom && y.To == airlineTo && y.Day == airlineDay)
+            {
+                flightsB.Add(new Flight(y.Code, y.Name, y.From, y.To, y.Day, y.Time, y.Seat, y.Cost));
+            }
+        }
+
+    }
+    private void GCode()
+    {
+        if (pName == "" && pCitizenship == "")
+        {
+            throw new InvalidInputException();
+        }
+        else
+        {
+            reservationCode = reservationManager.RandomCode();
+            
+        }
+    }
+}
